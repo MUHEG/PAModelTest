@@ -222,7 +222,7 @@ start_time = Sys.time()
 # QUANTILE <- parameters$QUANTILE
 results <-  foreach::foreach(seed_current=seeds,.export=ls(globalenv())) %:%
   
-  foreach::foreach(i=1:nrow(scenarios_ShortTrips), # Try 10 scenarios at the time
+  foreach::foreach(i=1:nrow(scenarios_ShortTrips), # Try 10 scenarios at the time ## Just do one or two rows
                    .combine=rbind,
                    .verbose=F,
                    .packages=c("dplyr","tidyr","stringr","readr","readxl","data.table","srvyr")
