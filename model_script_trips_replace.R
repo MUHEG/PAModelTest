@@ -161,7 +161,7 @@ mortality_trends <- bind_rows(
 
 # To produce deterministic results, set NSAMPLES <- 1 and UNCERTAINTY <- F
 NSAMPLES <- 1# 000
-UNCERTAINTY <- T
+UNCERTAINTY <- F
 
 ### MSLT & PIFs options
 
