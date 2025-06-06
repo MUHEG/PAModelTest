@@ -575,7 +575,7 @@ CalculationModel <- function(output_location="modelOutput",
                             outcome_type = ifelse(DISEASE_SHORT_NAMES$acronym[i] == "diabetes", "non-fatal",'fatal-and-non-fatal'), 
                             #"fatal-and-non-fatal", #
                             dose = mmets_pp[,paste0(s, "_mmet")],
-                            quantile = get(paste("QUANTILE"), envir = .GlobalEnv),
+                            quantile = parameters$QUANTILE, #get(paste("QUANTILE"), envir = .GlobalEnv),
                             confidence_intervals = F)
     }
   }
@@ -705,10 +705,10 @@ CalculationModel <- function(output_location="modelOutput",
   
   disease_relative_risks <- tribble(
     ~sex    , ~prerequsite, ~disease , ~relative_risk       ,
-    "male"  ,  "dmt2"     ,  "ishd"  ,  DIABETES_IHD_RR_M   ,
-    "female",  "dmt2"     ,  "ishd"  ,  DIABETES_IHD_RR_F   ,
-    "male"  ,  "dmt2"     ,  "strk"  ,  DIABETES_STROKE_RR_M,
-    "female",  "dmt2"     ,  "strk"  ,  DIABETES_STROKE_RR_F
+    "male"  ,  "dmt2"     ,  "ishd"  ,  parameters$DIABETES_IHD_RR_M   ,
+    "female",  "dmt2"     ,  "ishd"  ,  parameters$DIABETES_IHD_RR_F   ,
+    "male"  ,  "dmt2"     ,  "strk"  ,  parameters$DIABETES_STROKE_RR_M,
+    "female",  "dmt2"     ,  "strk"  ,  parameters$DIABETES_STROKE_RR_F
   )
   
   disease_life_table_list_sc <- list()

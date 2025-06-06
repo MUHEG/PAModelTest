@@ -1,6 +1,6 @@
 rm (list = ls())
 # remotes::install_github("meta-analyses/drpa")
-
+source("Private/Paths.R")
 # ---- Get libraries ----
 library(plyr)
 library(dplyr)
@@ -22,9 +22,9 @@ library(drpa)
 city <- "brisbane"
 
 # Working directory
-scenarioLocation <- paste0("./scenarios/", city, "-scenarios")
+scenarioLocation <- paste0(parent_path_1L_chr,"/scenarios/", city, "-scenarios")
 scenarioTripsLocation <- paste0(scenarioLocation, "/scenarioTrips")
-finalLocation     <- paste0("output/", city, "-outputs")
+finalLocation     <- paste0(output_path_1L_chr,"/output/", city, "-outputs")
 
 # Local path to result folder
 source("Private/Paths.R")
@@ -32,10 +32,10 @@ source("Private/Paths.R")
 
 # Local drive-results (large files)
 
-outputLocation       <- paste0(local_dir_path, "results/scenarioTripsReplace/", city, "-outputs-raw")
-combinedLocationDisease     <- paste0(local_dir_path, "results/scenarioTripsReplace/", city, "-outputs-combined/disease")
-combinedLocationLifeYears <- paste0(local_dir_path, "results/scenarioTripsReplace/", city, "-outputs-combined/LifeYears")
-combineLocationOutputAgg <- paste0(local_dir_path, "results/scenarioTripsReplace/", city, "-outputs-combined/OutputAgg")
+outputLocation       <- paste0(local_dir_path, "/results/scenarioTripsReplace/", city, "-outputs-raw")
+combinedLocationDisease     <- paste0(local_dir_path, "/results/scenarioTripsReplace/", city, "-outputs-combined/disease")
+combinedLocationLifeYears <- paste0(local_dir_path, "/results/scenarioTripsReplace/", city, "-outputs-combined/LifeYears")
+combineLocationOutputAgg <- paste0(local_dir_path, "/results/scenarioTripsReplace/", city, "-outputs-combined/OutputAgg")
 
 
 # Create directories, in case not created yet
@@ -79,13 +79,13 @@ source("Scripts/data_prep/population_prep.R")
 
 # --- Fixed inputs ---
 
-mslt_general="Data/processed/mslt/mslt_df.csv"
-death_rate_periodic="Data/processed/mslt/deaths_periodic.csv"
-death_rates_projections="Data/processed/mslt/deaths_projections.csv"
-population_estimates = "Data/original/abs/population_estimates_age_sex_2001_to_2021.xlsx"
-census_population_before = "Data/original/abs/population_census_GCCSA_2016.xlsx"
-census_population_after = "Data/original/abs/population_census_GCCSA_2021.xlsx"
-disease_inventory_location="Data/original/ithimr/disease_outcomes_lookup.csv"
+mslt_general=paste0(parent_path_1L_chr, "/Data/processed/mslt/mslt_df.csv")
+death_rate_periodic=paste0(parent_path_1L_chr,"/Data/processed/mslt/deaths_periodic.csv")
+death_rates_projections=paste0(parent_path_1L_chr,"/Data/processed/mslt/deaths_projections.csv")
+population_estimates = paste0(parent_path_1L_chr,"/Data/original/abs/population_estimates_age_sex_2001_to_2021.xlsx")
+census_population_before = paste0(parent_path_1L_chr,"/Data/original/abs/population_census_GCCSA_2016.xlsx")
+census_population_after = paste0(parent_path_1L_chr,"/Data/original/abs/population_census_GCCSA_2021.xlsx")
+disease_inventory_location=paste0(parent_path_1L_chr,"/Data/original/ithimr/disease_outcomes_lookup.csv")
 
 ## Victoria/Queensland specific
 ## (see 'data_prep/death rate projection checks.R' for notes on location_assumption)
@@ -125,7 +125,7 @@ i_sex <<- c("male", "female")
 
 ## DATA FILES FOR MODEL  
 
-DISEASE_SHORT_NAMES <<- read.csv("Data/processed/mslt/disease_names.csv",as.is=T,fileEncoding="UTF-8-BOM")
+DISEASE_SHORT_NAMES <<- read.csv(paste0(parent_path_1L_chr,"/Data/processed/mslt/disease_names.csv"),as.is=T,fileEncoding="UTF-8-BOM")
 
 include <- read.csv(disease_inventory_location,as.is=T,fileEncoding="UTF-8-BOM") %>% 
   dplyr::filter(physical_activity == 1)
@@ -147,13 +147,13 @@ SCEN_SHORT_NAME <- c("base", "scen1")
 
 # Incidence and mortality trends
 incidence_trends <- bind_rows(
-  read.csv("Data/processed/mslt/incidence_trends_m.csv",as.is=T,fileEncoding="UTF-8-BOM"),
-  read.csv("Data/processed/mslt/incidence_trends_f.csv",as.is=T,fileEncoding="UTF-8-BOM")
+  read.csv(paste0(parent_path_1L_chr,"/Data/processed/mslt/incidence_trends_m.csv"),as.is=T,fileEncoding="UTF-8-BOM"),
+  read.csv(paste0(parent_path_1L_chr,"/Data/processed/mslt/incidence_trends_f.csv"),as.is=T,fileEncoding="UTF-8-BOM")
 )
 
 mortality_trends <- bind_rows(
-  read.csv("Data/processed/mslt/mortality_trends_m.csv",as.is=T,fileEncoding="UTF-8-BOM"),
-  read.csv("Data/processed/mslt/mortality_trends_f.csv",as.is=T,fileEncoding="UTF-8-BOM")
+  read.csv(paste0(parent_path_1L_chr,"/Data/processed/mslt/mortality_trends_m.csv"),as.is=T,fileEncoding="UTF-8-BOM"),
+  read.csv(paste0(parent_path_1L_chr,"/Data/processed/mslt/mortality_trends_f.csv"),as.is=T,fileEncoding="UTF-8-BOM")
 )
 
 
@@ -206,39 +206,46 @@ if (city == "melbourne") {
 
 discount.rates <- c(3, 5, 7)
 
-disease.costs <- read.csv("./Data/processed/disease costs.csv")
+disease.costs <- read.csv(paste0(parent_path_1L_chr,"/Data/processed/disease costs.csv"))
 
 
 # ---- Run model ----
 
 print(paste0("iterating through ",nrow(scenarios_ShortTrips)," scenarios at ",Sys.time()))
-# number_cores <- max(1,floor(as.integer(detectCores())*0.8))
 number_cores <- detectCores()
+# number_cores <- max(1,floor(as.integer(detectCores())*0.8))
 cl <- makeCluster(number_cores)
 cat(paste0("About to start processing results in parallel, using ",number_cores," cores\n"))
 seeds <-1:NSAMPLES
 registerDoParallel(cl)
 start_time = Sys.time()
-# QUANTILE <- parameters$QUANTILE
+# QUANTILE <- parameters$QUANTILE # Comment out????
+scenarios_ShortTrips <- scenarios_ShortTrips %>% 
+  dplyr::slice(1:3)
 results <-  foreach::foreach(seed_current=seeds,.export=ls(globalenv())) %:%
   
-  foreach::foreach(i=1:nrow(scenarios_ShortTrips), # Try 10 scenarios at the time ## Just do one or two rows
+  foreach::foreach(i = 1:nrow(scenarios_ShortTrips), #Try 10 scenarios at the time ## Just do one or two rows
                    .combine=rbind,
-                   .verbose=F,
+                   .verbose=T,
                    .packages=c("dplyr","tidyr","stringr","readr","readxl","data.table","srvyr")
                    
   ) %dopar% {
     for(p in 1:length(parameters))
       assign(names(parameters)[p],parameters[[p]][[seed_current]],pos=1)
     
-    if (file.exists(scenarios_ShortTrips[i,]$scenario_location))
-      CalculationModel(output_location=scenarios_ShortTrips[i,]$output_location,
-                       persons_matched= read.csv(scenarios_ShortTrips[i,]$scenario_location,as.is=T, fileEncoding="UTF-8-BOM"))
-    
+    if (file.exists(scenarios_ShortTrips[i,]$scenario_location)){
+      output_to_1L_chr <- scenarios_ShortTrips[i,]$output_location
+      persons_tb <- read.csv(scenarios_ShortTrips[i,]$scenario_location,as.is=T, fileEncoding="UTF-8-BOM")
+      
+      CalculationModel(output_location= output_to_1L_chr,
+                       persons_matched= persons_tb)
+    }
+      
+    # cat("GOT THIS FAR")
     end_time = Sys.time()
     end_time - start_time
+    # cat("AND HERE")
     stopCluster(cl)
-    
     cat(paste0("\n scenario ",i,"/",nrow(scenarios_ShortTrips)," complete at ",Sys.time(),"\n"))
     
     # TESTING - this should flush memory without removing environmental variables
@@ -274,15 +281,15 @@ for (i in 1:nrow(scenarios_ShortTrips)){
 
 
 # Calculate statistics outputs
-output_diseases_change <- CalculateDisease(inputDirectory=paste0(local_dir_path, "results/scenarioTripsReplace/", city, "-outputs-combined/disease"))
-output_life_years_change <- CalculateLifeYears(inputDirectory=paste0(local_dir_path, "results/scenarioTripsReplace/", city, "-outputs-combined/LifeYears")) 
+output_diseases_change <- CalculateDisease(inputDirectory=paste0(local_dir_path, "/results/scenarioTripsReplace/", city, "-outputs-combined/disease"))
+output_life_years_change <- CalculateLifeYears(inputDirectory=paste0(local_dir_path, "/results/scenarioTripsReplace/", city, "-outputs-combined/LifeYears")) 
 
 ## Do list and then append list
 index <- 1
 list_output_agg <- list()
 for (i in 1:nrow(scenarios_ShortTrips)) {
   list_output_agg[[index]] <- CalculateOutputAgg(paste0(local_dir_path, 
-                                                        "results/scenarioTripsReplace/", city, "-outputs-combined/OutputAgg/", scenarios_ShortTrips[i,]$scenario, ".rds"))
+                                                        "/results/scenarioTripsReplace/", city, "-outputs-combined/OutputAgg/", scenarios_ShortTrips[i,]$scenario, ".rds"))
   index <- index + 1
 }
 
